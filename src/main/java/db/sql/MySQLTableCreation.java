@@ -18,12 +18,12 @@ public class MySQLTableCreation {
 			try {
 				System.out.println("Connecting to " + MySQLDBUtil.URL);
 				
-				// java 反射 通过运行时的值来创建class 
+				// java reflection
 				// com.mysql.jdbc.Driver是路径 forname返回的是一个class
-				//call这一句会调用内部的static initializer, static initializer会注册driver
+				// this code will call a static initializer, static initializer wil register driver
 				Class.forName("com.mysql.jdbc.Driver").getConstructor().newInstance();
 				
-				// 获得和数据库的连接
+				// get connection with database
 				conn = DriverManager.getConnection(MySQLDBUtil.URL);
 				
 			} catch (SQLException e) {

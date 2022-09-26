@@ -41,7 +41,8 @@ public class SearchItem extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+		
+		// JSONArray return to front end
 		JSONArray array = new JSONArray();
 		DBConnection connection = DBConnectionFactory.getConnection();
 		try {
@@ -52,7 +53,7 @@ public class SearchItem extends HttpServlet {
 			double lon = Double.parseDouble(request.getParameter("lon"));
 			String keyword = request.getParameter("term");
 			
-			
+			// Get events list and save them to database
 			List<Item> items = connection.searchItems(lat, lon, keyword);
 			
 			Set<String> favorite = connection.getFavoriteItemIds(userId);
@@ -61,6 +62,7 @@ public class SearchItem extends HttpServlet {
 			
 			for (Item item: items) {
 				
+				// Convert item object to JSONObject
 				JSONObject obj = item.toJSONObject();
 				
 				obj.put("favorite", favorite.contains(item.getItemId()));
@@ -72,6 +74,8 @@ public class SearchItem extends HttpServlet {
 		} finally {
 			connection.close();
 		}
+		
+		// Return to front end
 		RpcHelper.writeJsonArray(response, array);
 	
 	}

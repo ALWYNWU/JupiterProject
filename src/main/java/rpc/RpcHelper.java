@@ -14,9 +14,13 @@ public class RpcHelper {
 	// Writes a JSONObject to http response
 	public static void writeJsonObject(HttpServletResponse response, JSONObject obj) {
 		try {
+			
+			//Set response content type
 			response.setContentType("application/json");
 			response.addHeader("Access-Control-Allow-Origin", "*");
 			PrintWriter out = response.getWriter();
+			
+			// Return obj to frontend
 			out.print(obj);
 			out.close();
 		} catch (Exception e) {
@@ -30,7 +34,7 @@ public class RpcHelper {
 			response.setContentType("application/json");
 			response.addHeader("Access-Control-Allow-Origin", "*");
 			
-			//这两句话是将得到的数据返回到前端
+
 			PrintWriter out = response.getWriter();
 			out.print(array);
 			

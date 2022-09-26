@@ -66,7 +66,6 @@ public class ItemHistory extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// set favorite item
-		// 接受前端发来的请求（已经被解析过了） 然后将数据存入数据库
 		/**
 		 * {
     			user_id = “1111”,
@@ -78,19 +77,29 @@ public class ItemHistory extends HttpServlet {
 		 */
 		
 		try {
+			
+			// Parse request, get JSONObject
 			JSONObject input = RpcHelper.readJsonObject(request);
 			String userId = input.getString("user_id");
+			
+			// Get favourite events
 			JSONArray array = input.getJSONArray("favorite");
+			
 			List<String> itemIds = new ArrayList<>();
 			
+			// Store item id to list
 			for (int i = 0; i < array.length(); i++) {
 				itemIds.add(array.get(i).toString());
 			}
 			
+			// Create Database connection
 			DBConnection conn = DBConnectionFactory.getConnection();
+			
+			// Save favorite items
 			conn.setFavoriteItems(userId, itemIds);
 			conn.close();
 			
+			// Return success to front-end
 			RpcHelper.writeJsonObject(response, new JSONObject().put("result", "SUCCESS"));
 			
 		} catch (Exception e) {

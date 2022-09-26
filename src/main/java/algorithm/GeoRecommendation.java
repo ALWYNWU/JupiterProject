@@ -22,7 +22,7 @@ public class GeoRecommendation {
 		List<Item> recommendedItems = new ArrayList<>();
 		DBConnection conn = DBConnectionFactory.getConnection();
 		
-		// Step 1 Get all favorite items
+		// Step 1 Get all favorite itemIds
 		Set<String> favoriteItemIds = conn.getFavoriteItemIds(userId);
 		
 		
@@ -35,12 +35,16 @@ public class GeoRecommendation {
 			}
 		}
 		
+		// Entry is a internal interface of Map
+		// Entry represents an entity in Map (a key-value pair)
+		// Use entry here is to compare the Integer and sort them and iterate 
 		List<Entry<String, Integer>> categoryList = 
 				new ArrayList<Entry<String, Integer>>(allCategories.entrySet());
 		
 		Collections.sort(categoryList, new Comparator<Entry<String, Integer>>() {
 			@Override
 			public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2) {
+				// sort high to low
 				return Integer.compare(o2.getValue(), o1.getValue());
 			}
 		}); 
@@ -55,11 +59,14 @@ public class GeoRecommendation {
 			List<Item> filteredItems = new ArrayList<>();
 			
 			for (Item item : items) {
+				// Filter visited items
 				if (!favoriteItemIds.contains(item.getItemId()) && !visitedItems.contains(item)) {
 					filteredItems.add(item);
 				}
 			}
 			
+			
+			// sort them by distance
 			Collections.sort(filteredItems, new Comparator<Item>() {
 				@Override
 				public int compare(Item item1, Item item2) {

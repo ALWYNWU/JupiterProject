@@ -6,7 +6,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
-//import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -23,51 +22,73 @@ public class TicketMasterAPI {
 	private static final String DEFAULT_KEYWORD = ""; // no restriction
 	private static final String API_KEY = "tAhQCSw8OtweOr2OS7Q9AANrDllJL15J";
 	
+	
 	public List<Item> search(double lat, double lon, String keyword) {
+		
 		if (keyword == null) {
 			keyword = DEFAULT_KEYWORD;
 		}
 		
 		try {
+			// encoded keyword in url since it may contain special characters
 			keyword = java.net.URLEncoder.encode(keyword, "UTF-8");
-			// use URL encoder to encode the keyword
 		} catch (Exception e) {
 			e.printStackTrace(); 
 		}
 		
+		// convert lat/lon to geo hash
 		String geoHash = GeoHash.encodeGeohash(lat, lon, 8);
 		
+		// Make the url query
 		String query = String.format("apikey=%s&geoPoint=%s&keyword=%s&radius=%s", 
 				API_KEY, geoHash, keyword, 80);
 		
 		try {
-			HttpURLConnection connection = (HttpURLConnection) new URL(URL + "?" + query).openConnection();
-			// openconnection转换完是URLConnection, 所以需要再加一个类型转换
 			
+			// Open a HTTP connection between java app and ticketMaster based on url
+			// openconnection ==> URLConnection ==> HttpURLConnection
+			HttpURLConnection connection = (HttpURLConnection) new URL(URL + "?" + query).openConnection();
+			
+			/**
+			 * Send request to TicketMaster and get response, the response code could be return directly
+			 * Response body is saved in InputStream of connection
+			 */
 			int responseCode = connection.getResponseCode();
+			
 			System.out.println("\nSending 'GET' request to URL: " + URL + "?" + query);
 			System.out.println("Response code: " + responseCode);
 			
+			// Read response body to get event data
+			// buffered reader means read line by line
 			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			// buffered reader一次读一行
 			
 			String inputLine;
 			StringBuilder response = new StringBuilder();
 			
+			// in.readLine means read one line then append it to stringbuilder
 			while((inputLine = in.readLine())!=null) {
 				response.append(inputLine);
-				//使用readLine函数一行一行读到stringbuilder里
 			}
+			
+			// Close bufferReader
 			in.close();
 			
+			// Convert response JSON
 			JSONObject obj = new JSONObject(response.toString());
+			
+			// _embedded store events list
 			if (obj.isNull("_embedded")) {
 				return new ArrayList<>();
 			}
 			
+			// get JSONObject
 			JSONObject embedded = obj.getJSONObject("_embedded");
+			
+			// Get events array
 			JSONArray events = embedded.getJSONArray("events"); 
 			
+			// Convert JSONArrays to list
+			// ItemList store event objects
 			return getItemList(events);
 			
 		} catch (Exception e) {
@@ -115,6 +136,7 @@ public class TicketMasterAPI {
 	  }
 	 */
 	
+	// Extract address information
 	private String getAddress(JSONObject event) throws JSONException{
 		
 		if (!event.isNull("_embedded")) {
@@ -163,6 +185,7 @@ public class TicketMasterAPI {
 		return "";
 	}
 	
+	// Extract categories infor
 	private Set<String> getCategories(JSONObject event) throws JSONException{
 		
 		Set<String> categories = new HashSet<>();
@@ -222,7 +245,11 @@ public class TicketMasterAPI {
 		List<Item> itemList = new ArrayList<>();
 		
 		 for (int i = 0; i < events.length(); i++) {
+			 
+			 // Get enents one by one
 			 JSONObject event = events.getJSONObject(i);
+			 
+			 // User builder design pattern
 			 ItemBuilder builder = new ItemBuilder();
 			 
 			 if (!event.isNull("name")) {

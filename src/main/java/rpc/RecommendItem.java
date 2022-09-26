@@ -34,14 +34,17 @@ public class RecommendItem extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * Handle GET request Endpoint: /recommendation
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		
+		// Parse userId lat lon
 		String userId = request.getParameter("user_id");
 		double lat = Double.parseDouble(request.getParameter("lat"));
 		double lon = Double.parseDouble(request.getParameter("lon"));
 		
+		// Get recommendation
 		GeoRecommendation recommendation = new GeoRecommendation();
 		List<Item> items = recommendation.recommendItems(userId, lat, lon);
 		

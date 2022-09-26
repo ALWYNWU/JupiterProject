@@ -76,6 +76,7 @@ public class MySQLConnection implements DBConnection {
 			String sql = "DELETE FROM history WHERE user_id = ? AND item_id = ?";
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			
+			// Delete items in itemIds list
 			for (String itemId: itemIds) {
 				stmt.setString(1, userId);
 				stmt.setString(2, itemId);
